@@ -6,12 +6,12 @@ Before using this project on boundary detection, please set your GPU available.
   ./convert_ground_truth_mat2image.py
   ./generate_lst.py
 
-###TRAIN
-Go to directory: caffe_BD/
-Train model:
+#### TRAIN
+0. Go to directory: caffe_BD/
+0. Train model:
   ./examples/BSDS500/BSDS500_train.sh
 
-###TEST
-Go to directory: caffe_BD/
-Test an image using trained model:
+#### TEST
+0. Go to directory: caffe_BD/
+0. Test an image using trained model:
   python BSDS500_test.py
