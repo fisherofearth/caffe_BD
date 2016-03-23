@@ -9,6 +9,7 @@ Before using this project on boundary detection, please set your GPU available.
 #### TRAIN
 0. Go to directory: caffe_BD/
 0. Train model:
+
   ./examples/BSDS500/BSDS500_train.sh
 
 #### TEST
