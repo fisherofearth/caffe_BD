@@ -1,0 +1,309 @@
+name: "BSDS500_BD"
+
+input: "data"
+input_dim: 1
+input_dim: 3
+input_dim: 160
+input_dim: 160
+
+
+
+# Convolution_block-1
+layer {  
+  name: "conv1"
+  type: "Convolution"
+  bottom: "data"  
+  top: "conv1"  
+  param {
+      lr_mult: 1
+    }
+    param {
+      lr_mult: 2
+    }
+  convolution_param {    
+    num_output: 64    
+    pad: 1    
+    kernel_size: 3  
+    stride: 1
+    weight_filler {
+      type: "gaussian" # initialize the filters from a Gaussian
+      std: 0.01        # distribution with stdev 0.01 (default mean: 0)
+    }
+  }
+}
+layer {  
+  name: "relu_c1"   
+  type: "ReLU"
+  bottom: "conv1"  
+  top: "conv1"  
+  }
+layer {
+  name: "pool1"  
+  type: "Pooling"
+  bottom: "conv1"  
+  top: "pool1" 
+  top: "pool1_mask"  
+  pooling_param {    
+    pool: MAX    
+    kernel_size: 2    
+    stride: 2  
+  }
+}
+
+# Convolution_block-2
+layer {  
+  name: "conv2"
+  type: "Convolution"
+  bottom: "pool1"  
+  top: "conv2"  
+  param {
+      lr_mult: 1
+    }
+    param {
+      lr_mult: 2
+    }
+  convolution_param {    
+    num_output: 256    
+    pad: 1    
+    kernel_size: 3  
+    stride: 1
+    weight_filler {
+      type: "gaussian" # initialize the filters from a Gaussian
+      std: 0.01        # distribution with stdev 0.01 (default mean: 0)
+    }
+  }
+}
+layer {  
+  name: "relu_c2"   
+  type: "ReLU"
+  bottom: "conv2"  
+  top: "conv2"  
+  }
+layer {
+  name: "pool2"  
+  type: "Pooling"
+  bottom: "conv2"  
+  top: "pool2" 
+  top: "pool2_mask"  
+  pooling_param {    
+    pool: MAX    
+    kernel_size: 2    
+    stride: 2  
+  }
+}
+
+# Convolution_block-3
+layer {  
+  name: "conv3"
+  type: "Convolution"
+  bottom: "pool2"  
+  top: "conv3"  
+  param {
+      lr_mult: 1
+    }
+    param {
+      lr_mult: 2
+    }
+  convolution_param {    
+    num_output: 1    
+    pad: 1    
+    kernel_size: 3  
+    stride: 1
+    weight_filler {
+      type: "gaussian" # initialize the filters from a Gaussian
+      std: 0.01        # distribution with stdev 0.01 (default mean: 0)
+    }
+  }
+}
+layer {  
+  name: "relu_c3"   
+  type: "ReLU"
+  bottom: "conv3"  
+  top: "conv3"  
+  }
+layer {
+  name: "pool3"  
+  type: "Pooling"
+  bottom: "conv3"  
+  top: "pool3" 
+  top: "pool3_mask"  
+  pooling_param {    
+    pool: MAX    
+    kernel_size: 2    
+    stride: 2  
+  }
+}
+
+
+# Deconvolution_block-3
+layer { 
+  name: "unpool3"
+  type: "Unpooling"  
+  bottom: "pool3"  
+  bottom: "pool3_mask"  
+  top: "unpool3" 
+  pooling_param {   
+    pool: MAX   
+    kernel_size: 2    
+    stride: 2   
+  }
+}
+layer { 
+  name: "relu_d3"   
+  type: "ReLU"
+  bottom: "unpool3"  
+  top: "unpool3"  
+}
+layer { 
+  name: 'deconv3'
+  type: "Deconvolution"
+  bottom: 'unpool3' 
+  top: 'deconv3'   
+  param {
+      lr_mult: 1
+    }
+    param {
+      lr_mult: 2
+    }
+  convolution_param { 
+    num_output: 256 
+    pad: 1  
+    kernel_size: 3
+    weight_filler {      
+      type: "gaussian"      
+      std: 0.01    
+    }
+    bias_filler {      
+      type: "constant"      
+      value: 0    
+    }
+  } 
+}
+layer { 
+  name: "relu_d3_a"   
+  type: "ReLU"
+  bottom: "deconv3"  
+  top: "deconv3"  
+}
+
+
+# Deconvolution_block-2
+layer { 
+  name: "unpool2"
+  type: "Unpooling"  
+  bottom: "deconv3"  
+  bottom: "pool2_mask"  
+  top: "unpool2" 
+  pooling_param {   
+    pool: MAX   
+    kernel_size: 2    
+    stride: 2   
+  }
+}
+layer { 
+  name: "Relu_d2"   
+  type: "ReLU"
+  bottom: "unpool2"  
+  top: "unpool2"  
+}
+layer { 
+  name: 'deconv2'
+  type: "Deconvolution"
+  bottom: 'unpool2' 
+  top: 'deconv2'   
+  param {
+      lr_mult: 1
+    }
+    param {
+      lr_mult: 2
+    }
+  convolution_param { 
+    num_output: 64
+    pad: 1  
+    kernel_size: 3
+    weight_filler {      
+      type: "gaussian"      
+      std: 0.01    
+    }
+    bias_filler {      
+      type: "constant"      
+      value: 0   
+    }
+  } 
+}
+layer { 
+  name: "relu_d2_a"   
+  type: "ReLU"
+  bottom: "deconv2"  
+  top: "deconv2"  
+}
+
+# Deconvolution_block-1
+layer { 
+  name: "unpool1"
+  type: "Unpooling"  
+  bottom: "deconv2"  
+  bottom: "pool1_mask"  
+  top: "unpool1" 
+  pooling_param {   
+    pool: MAX   
+    kernel_size: 2    
+    stride: 2   
+  }
+}
+layer { 
+  name: "relu_d1"   
+  type: "ReLU"
+  bottom: "unpool1"  
+  top: "unpool1"  
+}
+layer { 
+  name: 'deconv1'
+  type: "Deconvolution"
+  bottom: 'unpool1' 
+  top: 'deconv1'   
+  param {
+      lr_mult: 1
+    }
+    param {
+      lr_mult: 2
+    }
+  convolution_param { 
+    num_output: 3 
+    pad: 1  
+    kernel_size: 3
+    weight_filler {      
+      type: "gaussian"      
+      std: 0.01    
+    }
+    bias_filler {      
+      type: "constant"      
+      value: 0    
+    }
+  } 
+}
+layer { 
+  name: "relu_d1_a"   
+  type: "ReLU"
+  bottom: "deconv1"  
+  top: "deconv1"  
+}
+
+layer { 
+  name: "relu_BD"   
+  type: "ReLU"
+ bottom: "deconv1"  
+  top: "deconv1"  
+}
+
+layer {
+  name: "pool_bd"  
+  type: "Pooling"
+  bottom: "deconv1"  
+  top: "pool_bd" 
+  pooling_param {    
+    pool: MAX    
+    kernel_size: 1    
+    stride: 1  
+  }
+}
